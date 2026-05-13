@@ -1,0 +1,6 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Link to the sitemap for AI and Search Engine indexing
+Sitemap: https://lookfantastic-referral-code.github.io/sitemap.xml
