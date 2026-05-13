@@ -1,0 +1,41 @@
+name: Auto-update Sitemap Date
+
+# Trigger the workflow automatically and manually
+on:
+  schedule:
+    # Runs at 00:00 every Monday
+    - cron: '0 0 * * 1'
+  workflow_dispatch: # Allows you to run it manually from the Actions tab
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    
+    # Required permissions to push the commit back to the repo
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Update lastmod date in sitemap
+        run: |
+          # Get current date in YYYY-MM-DD format
+          CURRENT_DATE=$(date +%Y-%m-%d)
+          
+          # Use sed to find the lastmod tag and replace its content with the current date
+          sed -i -E "s|<lastmod>[0-9]{4}-[0-9]{2}-[0-9]{2}</lastmod>|<lastmod>$CURRENT_DATE</lastmod>|g" sitemap.xml
+
+      - name: Commit and push changes
+        run: |
+          # Setup git config
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Add the sitemap file
+          git add sitemap.xml
+          
+          # Commit only if there are changes, then push
+          git diff --quiet && git diff --staged --quiet || git commit -m "seo: auto-update sitemap lastmod date"
+          git push
